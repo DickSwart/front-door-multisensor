@@ -61,7 +61,7 @@ void publishToMQTT(char *p_topic, char *p_payload, bool retain = true);
 void handleMQTTMessage(char *topic, byte *payload, unsigned int length);
 
 // variables declaration
-bool boot;
+bool boot = true;
 char MQTT_PAYLOAD[8] = {0};
 char MQTT_AVAILABILITY_TOPIC[sizeof(ESP_CHIP_ID) + sizeof(MQTT_AVAILABILITY_TOPIC_TEMPLATE) - 2] = {0};
 char MQTT_WIFI_QUALITY_TOPIC[sizeof(ESP_CHIP_ID) + sizeof(MQTT_SENSOR_TOPIC_TEMPLATE) + sizeof(WIFI_QUALITY_SENSOR_NAME) - 4] = {0};
@@ -115,7 +115,8 @@ void setup()
 {
   Serial.begin(115200);
 
-  boot == true;
+  boot = true;
+
   // Set the chip ID
   sprintf(ESP_CHIP_ID, "%06X", ESP.getChipId());
 
@@ -419,14 +420,14 @@ void connectToMQTT()
 
         Serial.println(F("[MQTT]: The mqttClient is successfully connected to the MQTT broker"));
         publishToMQTT(MQTT_AVAILABILITY_TOPIC, "online");
-        if (boot == false)
-        {
-          Serial.println(F("[MQTT]: Reconnected"));
-        }
-        if (boot == true)
+        if (boot)
         {
           Serial.println(F("[MQTT]: Rebooted"));
-          boot == false;
+          boot = false;
+        }
+        else
+        {
+          Serial.println(F("[MQTT]: Reconnected"));
         }
 
         // publish messages
